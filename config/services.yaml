@@ -20,5 +20,29 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\State\ShopStateProvider:
+        arguments:
+            $shopRepository: '@App\Repository\ShopRepository'
+            $categoryRepository: '@App\Repository\CategoryRepository'
+    #        tags:
+#            - { name: 'api_platform.state_provider', uriTemplate: '/shops/category/{category}', operation: 'GetCollection', resourceClass: App\Entity\Shop }
+
+    App\State\UserStateProvider:
+        arguments:
+            $security: '@security.helper' # Inject Security component
+        tags:
+            - { name: 'api_platform.state_provider', uriTemplate: '/auth/me', operation: 'Get', resourceClass: App\Entity\User }
+
+    App\Security\CustomAuthenticationSuccessHandler:
+        arguments:
+            $jwtManager: '@lexik_jwt_authentication.jwt_manager'
+            $dispatcher: '@event_dispatcher'
+        tags:
+            - { name: 'monolog.logger', channel: 'security' }
+
+        # Override the default success handler
+#        lexik_jwt_authentication.handler.authentication_success:
+#            alias: App\Security\CustomAuthenticationSuccessHandler
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

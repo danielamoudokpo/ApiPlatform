@@ -1,5 +1,13 @@
 security:
 
+    enable_authenticator_manager: true
+
+    providers:
+        user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
@@ -7,16 +15,35 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-
         main:
-            security: false
+            lazy: true
+            provider: user_provider
+            json_login:
+                check_path: api_login_route
+                username_path: email
+                password_path: password
+                success_handler: App\Security\CustomAuthenticationSuccessHandler
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            stateless: true
+            jwt: ~
+
+#        api:
+#            pattern: ^/api
+#            stateless: true
+#            jwt: ~
 
     role_hierarchy:
-        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_ADMIN: [ROLE_USER, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_MANAGER: [ROLE_USER]
+        ROLE_USER: []
 
     access_control:
-    # - { path: ^/admin, roles: ROLE_ADMIN }
-    # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/docs, roles: PUBLIC_ACCESS }
+        - { path: ^/users, roles: PUBLIC_ACCESS, method: POST }
+        - { path: ^/api/categories, roles: PUBLIC_ACCESS }
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/auth/me, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:

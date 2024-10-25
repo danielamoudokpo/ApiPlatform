@@ -21,8 +21,8 @@ RUN apk add --update yaml-dev \
 # pgsql
 # pgsql
 RUN apk add libpq-dev && \
-    docker-php-ext-install pdo pdo_pgsql && \
-    docker-php-ext-enable pdo_pgsql
+    docker-php-ext-install pdo pdo_mysql && \
+    docker-php-ext-enable pdo_mysql
 
 # zip
 RUN apk add libzip-dev && apk add zip && \
